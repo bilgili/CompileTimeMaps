@@ -1,25 +1,24 @@
-/*
- MIT License
- Copyright (c) 2020 Ahmet Bilgili
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+// MIT License
+// Copyright (c) 2020 Ahmet Bilgili
 
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 #include <tuple>
 #include <iostream>
@@ -103,7 +102,24 @@ struct CheckUniqueness<std::tuple<KeyTypePair<text, type>...>>
                                 && IsUnique<TextHelper<text>...>::value;
 };
 
-/** Definition of the safe type map */
+template<typename T>
+class GetType;
+
+template<const char *text, typename Tuple>
+class GetType<KeyTypePair<text, Tuple>>
+{
+private:
+  static constexpr size_t index = MapKeyIndex<text, Tuple>::value;
+  using TupleElement = typename std::tuple_element<index, Tuple>::type;
+
+public:
+  using Type = typename TupleElement::Type;
+  static constexpr const char *key = text;
+};
+
+/** Definition of the safe type map. */
+namespace SomeNameSpace
+{
 /** Keys */
 constexpr char hello[] = "hellow";
 constexpr char world[] = "world";
@@ -137,21 +153,7 @@ static_assert(!CheckUniqueness<NonUniqueTypeMap>::value, "is unique");
 using OtherNonUniqueTypeMap = std::tuple<KeyTypePair<world, float>,
                                          KeyTypePair<world, std::true_type>>;
 static_assert(!CheckUniqueness<OtherNonUniqueTypeMap>::value, "is unique");
-
-template<typename T>
-class GetType;
-
-template<const char *text, typename Tuple>
-class GetType<KeyTypePair<text, Tuple>>
-{
-private:
-  static constexpr size_t index = MapKeyIndex<text, Tuple>::value;
-  using TupleElement = typename std::tuple_element<index, Tuple>::type;
-
-public:
-  using Type = typename TupleElement::Type;
-  static constexpr const char *key = text;
-};
+}
 
 /** Example functions with compile type safe get/set methods */
 template<typename T>
@@ -169,9 +171,9 @@ std::enable_if_t<std::is_same<std::decay_t<ValueType>, typename GetType<T>::Type
 
 int main()
 {
-  auto ret = get<WorldParam>();
+  auto ret = get<SomeNameSpace::WorldParam>();
   static_assert (std::is_same<decltype(ret), std::true_type>::value, "Return types dont match");
-  set<IsParam>(5.0);
-  // set<NoWhereParam>(5.0); does not compile because NoWhereParam does not exist in CompileTimeMap
-  // set<IsParam>(true); does not compile because IsParam type is double in CompileTimeMap
+  set<SomeNameSpace::IsParam>(5.0);
+  // set<SomeNameSpace::NoWhereParam>(5.0); does not compile because NoWhereParam does not exist in CompileTimeMap
+  // set<SomeNameSpace::IsParam>(true); does not compile because IsParam type is double in CompileTimeMap
 }
