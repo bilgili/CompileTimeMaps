@@ -121,12 +121,12 @@ public:
 namespace SomeNameSpace
 {
 /** Keys */
-constexpr char hello[] = "hellow";
-constexpr char world[] = "world";
-constexpr char anotherWorld[] = "world";
-constexpr char is[] = "is";
-constexpr char empty[] = "empty";
-constexpr char nowhere[] = "nowhere";
+constexpr const char hello[] = "hellow";
+constexpr const char world[] = "world";
+constexpr const char anotherWorld[] = "world";
+constexpr const char is[] = "is";
+constexpr const char empty[] = "empty";
+constexpr const char nowhere[] = "nowhere";
 
 /** keys to types */
 using CompileTimeMap = std::tuple<KeyTypePair<hello, float>,
